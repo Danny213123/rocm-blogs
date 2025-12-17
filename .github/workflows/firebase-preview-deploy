@@ -5,7 +5,7 @@
 name: Firebase Preview Deploy
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main, develop, release]
 
 env:
@@ -27,7 +27,7 @@ jobs:
       - name: Checkout frontend repo
         uses: actions/checkout@v4
         with:
-          repository: Danny213123/program-repo
+          repository: YourOrg/rocm-blogs-frontend  # TODO: Update to your frontend repo
           token: ${{ secrets.GH_PAT }}
           path: frontend
 
