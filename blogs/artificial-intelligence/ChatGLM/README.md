@@ -8,7 +8,7 @@ language: English
 blog_title: "Using the ChatGLM-6B bilingual language model with AMD GPUs"
 key_value_propositions: ""
 target_audience: ""
-thumbnail: ""
+thumbnail: "" 
 myst:
     html_meta:
         "description lang=en": "Bilingual language model ChatGLM-6B"
@@ -415,4 +415,5 @@ WITHOUT A WARRANTY OF ANY KIND. USE OF SUCH THIRD-PARTY CONTENT IS DONE AT
 YOUR SOLE DISCRETION AND UNDER NO CIRCUMSTANCES WILL AMD BE LIABLE TO YOU FOR
 ANY THIRD-PARTY CONTENT. YOU ASSUME ALL RISK AND ARE SOLELY RESPONSIBLE FOR ANY
 DAMAGES THAT MAY ARISE FROM YOUR USE OF THIRD-PARTY CONTENT.
+
 
