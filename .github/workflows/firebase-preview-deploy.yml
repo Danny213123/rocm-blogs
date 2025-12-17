@@ -24,12 +24,22 @@ jobs:
       pull-requests: write  # For commenting preview URL
     
     steps:
+      - name: Checkout internal repo (blogs content)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          path: content
+
       - name: Checkout frontend repo
         uses: actions/checkout@v4
         with:
           repository: Danny213123/program-repo
           token: ${{ secrets.GH_PAT }}
           path: frontend
+
+      - name: Link blogs content to frontend
+        run: |
+          ln -s ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/blogs
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
