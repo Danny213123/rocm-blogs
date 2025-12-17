@@ -27,7 +27,7 @@ jobs:
       - name: Checkout frontend repo
         uses: actions/checkout@v4
         with:
-          repository: YourOrg/rocm-blogs-frontend  # TODO: Update to your frontend repo
+          repository: Danny213123/program-repo
           token: ${{ secrets.GH_PAT }}
           path: frontend
 
