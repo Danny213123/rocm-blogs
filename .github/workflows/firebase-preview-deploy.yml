@@ -42,10 +42,12 @@ jobs:
 
       - name: Copy blogs content to frontend
         run: |
-          # Copy entire blogs folder to frontend root (where script expects it)
+          # Copy to frontend/blogs for generate-index script
           cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/blogs
-          echo "✅ Copied blogs to frontend/blogs"
-          ls -la ${{ github.workspace }}/frontend/blogs/
+          # Also copy to public/blogs for serving images in the build
+          cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/public/blogs
+          echo "Copied blogs to frontend/blogs and frontend/public/blogs"
+          ls -la ${{ github.workspace }}/frontend/public/blogs/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
