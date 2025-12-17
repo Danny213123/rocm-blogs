@@ -1,7 +1,7 @@
 ---
 blogpost: true
 blog_title: "3D Scene Reconstruction from the Inside: Explore the Mathematics Behind gsplat"
-date: 16 Dec 2025
+date: 19 Dec 2025
 author: 'Ish Kool, Mark Granroth Wilding, Shaghayegh Roohi, Deeksha Goplani, Karthik Kashyap Thatipamula, Vikas C Sajjan, Pier Luigi Dovesi, Mittul Singh, Niko Vuokko'
 thumbnail: 'images/gsplat_blg2_math.jpeg'
 tags: Computer Vision, Linear Algebra, Scientific Computing, AI/ML, PyTorch
@@ -49,6 +49,7 @@ SOFTWARE.
 
 # 3D Scene Reconstruction from the Inside: Explore the Mathematics Behind gsplat
 
+test
 
 [3D Gaussian Splatting (3DGS)](https://dl.acm.org/doi/10.1145/3592433) reconstructs 3D scenes from multiple 2D images and renders novel views in real time. In this blog, which serves as a follow up to a previous post, [Elevating 3D Scene Rendering with GSplat](https://rocm.blogs.amd.com/software-tools-optimization/gsplat/README.html), you will learn the core mathematics and the practical library components behind 3DGS using [gsplat](https://github.com/ROCm/gsplat).
 
