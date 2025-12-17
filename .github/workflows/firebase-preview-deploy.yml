@@ -67,23 +67,43 @@ jobs:
           VITE_GITHUB_REPO: ${{ env.VITE_GITHUB_REPO }}
           VITE_GITHUB_BRANCH: ${{ env.VITE_GITHUB_BRANCH }}
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Authenticate Firebase
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-key.json
+
       - name: Deploy to Firebase Preview Channel
-        uses: FirebaseExtended/action-hosting-deploy@v0
         id: firebase_deploy
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: ${{ env.FIREBASE_PROJECT }}
-          channelId: pr-${{ github.event.pull_request.number }}
-          expires: 7d
-          entryPoint: frontend
-          disableComment: true  # Skip creating checks on external repo
+        working-directory: frontend
+        run: |
+          # Deploy to preview channel and capture output
+          OUTPUT=$(firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} \
+            --project ${{ env.FIREBASE_PROJECT }} \
+            --expires 7d \
+            --json 2>&1) || true
+          
+          echo "Raw output: $OUTPUT"
+          
+          # Extract the URL from JSON output
+          PREVIEW_URL=$(echo "$OUTPUT" | jq -r '.result."${{ env.FIREBASE_PROJECT }}".url // empty' 2>/dev/null || echo "")
+          
+          # Fallback: construct URL if not in output
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL="https://${{ env.FIREBASE_PROJECT }}--pr-${{ github.event.pull_request.number }}.web.app"
+          fi
+          
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "🚀 Preview URL: $PREVIEW_URL"
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
 
       - name: Comment preview URL on PR
         uses: actions/github-script@v7
         with:
           script: |
-            const url = '${{ steps.firebase_deploy.outputs.details_url }}';
+            const url = '${{ steps.firebase_deploy.outputs.preview_url }}';
             const body = `🚀 **Preview deployed!**\n\n` +
               `📍 Preview URL: ${url}\n` +
               `📦 Content Source: \`${{ env.VITE_GITHUB_REPO }}@${{ env.VITE_GITHUB_BRANCH }}\`\n\n` +
