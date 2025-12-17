@@ -1,4 +1,4 @@
-# ROCm blogs
+# ROCm blogs 
 
 Welcome to the ROCm blog repository.
 
