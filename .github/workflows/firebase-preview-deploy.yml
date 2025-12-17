@@ -42,12 +42,9 @@ jobs:
 
       - name: Copy blogs content to frontend
         run: |
-          # Copy to frontend/blogs for generate-index script
+          # Copy to frontend/blogs only (will copy to public after optimization)
           cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/blogs
-          # Also copy to public/blogs for serving images in the build
-          cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/public/blogs
-          echo "Copied blogs to frontend/blogs and frontend/public/blogs"
-          ls -la ${{ github.workspace }}/frontend/public/blogs/
+          echo "Copied blogs to frontend/blogs"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,6 +56,17 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci --legacy-peer-deps
+
+      - name: Optimize images (WebP, 1080p max)
+        working-directory: frontend
+        run: npm run optimize-thumbnails
+        env:
+          BLOGS_DIR: ${{ github.workspace }}/frontend/blogs
+
+      - name: Copy optimized blogs to public
+        run: |
+          cp -r ${{ github.workspace }}/frontend/blogs ${{ github.workspace }}/frontend/public/blogs
+          echo "Copied optimized blogs to frontend/public/blogs"
 
       - name: Generate blog index
         working-directory: frontend
