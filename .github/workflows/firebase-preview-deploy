@@ -1,0 +1,86 @@
+# Firebase Preview Deploy - For Internal Repo PRs
+# Deploys to Firebase Preview Channel when PRs are opened/updated
+# Content is fetched from the internal repo's PR branch
+
+name: Firebase Preview Deploy
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+env:
+  # Firebase project ID
+  FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT }}
+  # Content source - this internal repo and the PR branch
+  VITE_GITHUB_REPO: ${{ github.repository }}
+  VITE_GITHUB_BRANCH: ${{ github.head_ref }}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pull-requests: write  # For commenting preview URL
+    
+    steps:
+      - name: Checkout frontend repo
+        uses: actions/checkout@v4
+        with:
+          repository: YourOrg/rocm-blogs-frontend  # TODO: Update to your frontend repo
+          token: ${{ secrets.GH_PAT }}
+          path: frontend
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate blog index
+        working-directory: frontend
+        run: npm run generate-index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_GITHUB_REPO: ${{ env.VITE_GITHUB_REPO }}
+          VITE_GITHUB_BRANCH: ${{ env.VITE_GITHUB_BRANCH }}
+
+      - name: Build with internal repo content
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_GITHUB_REPO: ${{ env.VITE_GITHUB_REPO }}
+          VITE_GITHUB_BRANCH: ${{ env.VITE_GITHUB_BRANCH }}
+
+      - name: Deploy to Firebase Preview Channel
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        id: firebase_deploy
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ env.FIREBASE_PROJECT }}
+          channelId: pr-${{ github.event.pull_request.number }}
+          expires: 7d
+          entryPoint: frontend
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.firebase_deploy.outputs.details_url }}';
+            const body = `🚀 **Preview deployed!**\n\n` +
+              `📍 Preview URL: ${url}\n` +
+              `📦 Content Source: \`${{ env.VITE_GITHUB_REPO }}@${{ env.VITE_GITHUB_BRANCH }}\`\n\n` +
+              `This preview will expire in 7 days.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
