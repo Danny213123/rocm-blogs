@@ -18,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     
     # GitHub Deployment - creates clickable link in Actions UI
+    # Uses predictable Firebase preview channel URL pattern
     environment:
       name: preview-pr-${{ github.event.pull_request.number }}
-      url: ${{ steps.firebase_deploy.outputs.preview_url }}
+      url: https://${{ secrets.FIREBASE_PROJECT }}--pr-${{ github.event.pull_request.number }}.web.app
     
     permissions:
       contents: read
