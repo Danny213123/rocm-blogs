@@ -7,7 +7,7 @@ practices and lessons learned during our testing of software applications, libra
 AMD GPUs.
 
 We currently showcase the following topics: 
-
+ 
 * Implementations of mathematical algorithms, such as partial differential equation discretizations,
   linear algebra, and solvers
 * Optimizations for artificial intelligence and high-performance computing (HPC) applications
