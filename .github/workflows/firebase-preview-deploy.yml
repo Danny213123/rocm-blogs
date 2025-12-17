@@ -41,12 +41,12 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: frontend
 
-      - name: Copy blogs content to frontend public folder
+      - name: Copy blogs content to frontend
         run: |
-          # Copy entire blogs folder to public for bundling with build
-          cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/public/blogs
-          echo "✅ Copied blogs to frontend/public/blogs"
-          ls -la ${{ github.workspace }}/frontend/public/blogs/
+          # Copy entire blogs folder to frontend root (where script expects it)
+          cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/blogs
+          echo "✅ Copied blogs to frontend/blogs"
+          ls -la ${{ github.workspace }}/frontend/blogs/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,7 +64,6 @@ jobs:
         run: npm run generate-index
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BLOGS_DIR: ${{ github.workspace }}/frontend/public/blogs
 
       - name: Build
         working-directory: frontend
