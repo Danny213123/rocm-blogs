@@ -1,6 +1,6 @@
 # Firebase Preview Deploy - For Internal Repo PRs
 # Deploys to Firebase Preview Channel when PRs are opened/updated
-# Content is fetched from the internal repo's PR branch
+# Content and images are bundled from the internal repo's PR branch
 
 name: Firebase Preview Deploy
 
@@ -9,9 +9,7 @@ on:
     branches: [main, develop, release]
 
 env:
-  # Firebase project ID
   FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT }}
-  # Content source - this internal repo and the PR branch
   VITE_GITHUB_REPO: ${{ github.repository }}
   VITE_GITHUB_BRANCH: ${{ github.head_ref }}
 
@@ -19,9 +17,15 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     
+    # GitHub Deployment - creates clickable link in Actions UI
+    environment:
+      name: preview-pr-${{ github.event.pull_request.number }}
+      url: ${{ steps.firebase_deploy.outputs.preview_url }}
+    
     permissions:
       contents: read
-      pull-requests: write  # For commenting preview URL
+      pull-requests: write
+      deployments: write
     
     steps:
       - name: Checkout internal repo (blogs content)
@@ -37,9 +41,12 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           path: frontend
 
-      - name: Link blogs content to frontend
+      - name: Copy blogs content to frontend public folder
         run: |
-          ln -s ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/blogs
+          # Copy entire blogs folder to public for bundling with build
+          cp -r ${{ github.workspace }}/content/blogs ${{ github.workspace }}/frontend/public/blogs
+          echo "✅ Copied blogs to frontend/public/blogs"
+          ls -la ${{ github.workspace }}/frontend/public/blogs/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -57,39 +64,31 @@ jobs:
         run: npm run generate-index
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_GITHUB_REPO: ${{ env.VITE_GITHUB_REPO }}
-          VITE_GITHUB_BRANCH: ${{ env.VITE_GITHUB_BRANCH }}
+          BLOGS_DIR: ${{ github.workspace }}/frontend/public/blogs
 
-      - name: Build with internal repo content
+      - name: Build
         working-directory: frontend
         run: npm run build
         env:
-          VITE_GITHUB_REPO: ${{ env.VITE_GITHUB_REPO }}
-          VITE_GITHUB_BRANCH: ${{ env.VITE_GITHUB_BRANCH }}
+          VITE_USE_LOCAL_CONTENT: "true"
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
       - name: Authenticate Firebase
-        run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-key.json
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-key.json
 
       - name: Deploy to Firebase Preview Channel
         id: firebase_deploy
         working-directory: frontend
         run: |
-          # Deploy to preview channel and capture output
           OUTPUT=$(firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} \
             --project ${{ env.FIREBASE_PROJECT }} \
             --expires 7d \
             --json 2>&1) || true
           
-          echo "Raw output: $OUTPUT"
-          
-          # Extract the URL from JSON output
           PREVIEW_URL=$(echo "$OUTPUT" | jq -r '.result."${{ env.FIREBASE_PROJECT }}".url // empty' 2>/dev/null || echo "")
           
-          # Fallback: construct URL if not in output
           if [ -z "$PREVIEW_URL" ]; then
             PREVIEW_URL="https://${{ env.FIREBASE_PROJECT }}--pr-${{ github.event.pull_request.number }}.web.app"
           fi
@@ -98,20 +97,3 @@ jobs:
           echo "🚀 Preview URL: $PREVIEW_URL"
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
-
-      - name: Comment preview URL on PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const url = '${{ steps.firebase_deploy.outputs.preview_url }}';
-            const body = `🚀 **Preview deployed!**\n\n` +
-              `📍 Preview URL: ${url}\n` +
-              `📦 Content Source: \`${{ env.VITE_GITHUB_REPO }}@${{ env.VITE_GITHUB_BRANCH }}\`\n\n` +
-              `This preview will expire in 7 days.`;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
