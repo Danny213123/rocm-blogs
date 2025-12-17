@@ -25,6 +25,7 @@ jobs:
       contents: read
       pull-requests: write
       deployments: write
+      checks: write
 
     steps:
       - name: Checkout internal repo (blogs content)
@@ -96,16 +97,22 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
 
-      - name: Comment preview URL on PR
+      - name: Create preview check with link
         uses: actions/github-script@v7
         with:
           script: |
             const url = '${{ steps.firebase_deploy.outputs.preview_url }}';
-            const body = `🚀 **Preview deployed!**\n\n📍 **[View Preview](${url})**\n\nContent: \`${{ github.repository }}@${{ github.head_ref }}\``;
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
+              name: 'Firebase Preview',
+              head_sha: '${{ github.event.pull_request.head.sha }}',
+              status: 'completed',
+              conclusion: 'success',
+              details_url: url,
+              output: {
+                title: 'Preview Ready',
+                summary: `🚀 Preview deployed successfully!\n\n📍 [View Preview](${url})`
+              }
             });
