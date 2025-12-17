@@ -95,9 +95,19 @@ jobs:
             --expires 7d \
             --json 2>&1) || true
           
+          echo "Firebase output: $OUTPUT"
+          
+          # Try to extract URL from JSON output
           PREVIEW_URL=$(echo "$OUTPUT" | jq -r '.result."${{ env.FIREBASE_PROJECT }}".url // empty' 2>/dev/null || echo "")
           
+          # If JSON extraction failed, try to extract URL from text output
           if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL=$(echo "$OUTPUT" | grep -oP 'https://[a-zA-Z0-9-]+\.web\.app' | head -1 || echo "")
+          fi
+          
+          # Final fallback - should not be needed but just in case
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "⚠️ Could not extract preview URL from Firebase output"
             PREVIEW_URL="https://${{ env.FIREBASE_PROJECT }}--pr-${{ github.event.pull_request.number }}.web.app"
           fi
           
