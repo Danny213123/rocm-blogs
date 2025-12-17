@@ -16,7 +16,7 @@ We currently showcase the following topics:
 * Ecosystem and partner relations
 
 Several of the technical blogs contain accompanying code samples, which we encourage you to
-experiment with. Our intention is to provide content that targets domain experts and
+experiment with. Our intention is to provide content that targets domain experts and 
 computational/data scientists alike. While our optimization strategies may be specific to a particular
 application/model, we believe that the content can serve as a guideline and an effective starting point to help
 you get the best experience out of your AMD GPUs.
