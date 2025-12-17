@@ -12,7 +12,7 @@ We currently showcase the following topics:
   linear algebra, and solvers 
 * Optimizations for artificial intelligence and high-performance computing (HPC) applications
   and machine learning (ML) models
-* Tips and tricks to leverage ROCm tools, the ROCm software stack, and hardware-level optimizations
+* Tips and tricks to leverage ROCm tools, the ROCm software stack, and hardware-level optimizations 
 * Ecosystem and partner relations
 
 Several of the technical blogs contain accompanying code samples, which we encourage you to
