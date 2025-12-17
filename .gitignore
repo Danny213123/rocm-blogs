@@ -1,6 +1,6 @@
 .venv
 .vscode
-build
+build 
 
 # documentation artifacts
 _build/
