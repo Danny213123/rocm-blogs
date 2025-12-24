@@ -2,7 +2,7 @@
 
 Welcome to the ROCm blog repository.
 
-ROCm blogs range from general topic overviews to more technical walkthroughs where we share best
+ROCm blogs range from general topic overviews to more technical walkthroughs where we share best 
 practices and lessons learned during our testing of software applications, libraries, and frameworks on
 AMD GPUs.
 
