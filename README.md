@@ -13,7 +13,7 @@ We currently showcase the following topics:
 * Optimizations for artificial intelligence and high-performance computing (HPC) applications
   and machine learning (ML) models
 * Tips and tricks to leverage ROCm tools, the ROCm software stack, and hardware-level optimizations
-* Ecosystem and partner relations
+* Ecosystem and partner relations 
 
 Several of the technical blogs contain accompanying code samples, which we encourage you to
 experiment with. Our intention is to provide content that targets domain experts and
