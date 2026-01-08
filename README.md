@@ -1,11 +1,11 @@
 # ROCm blogs
 
-Welcome to the ROCm blog repository.
+Welcome to the ROCm blog repository. 
 
 ROCm blogs range from general topic overviews to more technical walkthroughs where we share best
 practices and lessons learned during our testing of software applications, libraries, and frameworks on
 AMD GPUs.
-
+ 
 We currently showcase the following topics:
 
 * Implementations of mathematical algorithms, such as partial differential equation discretizations,
